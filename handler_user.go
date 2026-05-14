@@ -55,3 +55,23 @@ func handlerRegister(s *state, cmd command) error {
 	fmt.Printf("username has been set to %v\n", cmd.args[0])
 	return nil
 }
+
+func handlerList(s *state, cmd command) error {
+
+	users, err := s.db.GetUsers(context.Background())
+	if err != nil {
+		return err
+	}
+
+	currentusername := s.cfg.CurrentUserName
+
+	for _, user := range users {
+		if user.Name == currentusername {
+			fmt.Printf("* %v (current)\n", user.Name)
+		} else {
+			fmt.Printf("* %v\n", user.Name)
+		}
+	}
+
+	return nil
+}
