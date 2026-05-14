@@ -4,7 +4,11 @@ import (
 	"fmt"
 	"os"
 
+	"database/sql"
+
 	"github.com/frankheinz87/blogaggregator/internal/config"
+	"github.com/frankheinz87/blogaggregator/internal/database"
+	_ "github.com/lib/pq"
 )
 
 func main() {
@@ -14,16 +18,28 @@ func main() {
 		return
 	}
 
+	db, err := sql.Open("postgres", cfg.DBURL)
+	if err != nil {
+		fmt.Println("error opening database:", err)
+		return
+	}
+
+	dbQueries := database.New(db)
+
 	/*err = cfg.SetUser("frank")
 	if err != nil {
 		fmt.Println("error setting user:", err)
 		return
 	}*/
 
-	st := &state{cfg: &cfg}
+	st := &state{
+		db:  dbQueries,
+		cfg: &cfg,
+	}
 
 	cmds := commands{m: make(map[string]func(*state, command) error)}
 	cmds.register("login", handlerLogin)
+	cmds.register("register", handlerRegister)
 
 	args := os.Args
 
