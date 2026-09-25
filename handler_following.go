@@ -4,17 +4,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
+
+	"github.com/frankheinz87/blogaggregator/internal/database"
 )
 
-func handlerFollowing(s *state, cmd command) error {
+func handlerFollowing(s *state, cmd command, user database.User) error {
 	if len(cmd.args) > 0 {
 		return errors.New("no arguments required")
-	}
-
-	user, err := s.db.GetUser(context.Background(), s.cfg.CurrentUserName)
-
-	if err != nil {
-		return err
 	}
 
 	feed_follows, err := s.db.GetFeedFollowsForUser(context.Background(), user.ID)
