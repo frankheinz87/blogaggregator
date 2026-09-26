@@ -1,5 +1,5 @@
 -- name: MarkFeedFetched :exec
 UPDATE feeds
-SET last_fetched_at = $2,
-    updated_at = $2
+SET last_fetched_at = NOW(),
+    updated_at = NOW()
 WHERE id = $1;

@@ -2,17 +2,57 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"time"
+
+	"github.com/frankheinz87/blogaggregator/internal/database"
 )
 
 func handlerAgg(s *state, cmd command) error {
 
-	feed, err := fetchFeed(context.Background(), "https://www.wagslane.dev/index.xml")
+	if len(cmd.args) < 1 {
+		return errors.New("time between reqs is required")
+	}
+
+	dur, err := time.ParseDuration(cmd.args[0])
 
 	if err != nil {
 		return err
 	}
 
-	fmt.Printf("%v\n", feed)
+	ticker := time.NewTicker(dur)
+
+	for ; ; <-ticker.C {
+		scrapeFeeds(s)
+	}
+}
+
+func scrapeFeeds(s *state) error {
+
+	next, err := s.db.GetNextFeedToFetch(context.Background())
+
+	if err != nil {
+		return err
+	}
+
+	err = s.db.MarkFeedFetched(context.Background(), database.MarkFeedFetchedParams{
+		ID: next.ID,
+	})
+
+	if err != nil {
+		return err
+	}
+
+	feed, err := fetchFeed(context.Background(), next.Url)
+
+	if err != nil {
+		return err
+	}
+
+	for _, item := range feed.Channel.Item {
+		fmt.Printf("%v\n", item.Title)
+	}
+
 	return nil
 }
