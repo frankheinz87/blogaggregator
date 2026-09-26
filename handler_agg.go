@@ -5,8 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"time"
-
-	"github.com/frankheinz87/blogaggregator/internal/database"
 )
 
 func handlerAgg(s *state, cmd command) error {
@@ -36,9 +34,7 @@ func scrapeFeeds(s *state) error {
 		return err
 	}
 
-	err = s.db.MarkFeedFetched(context.Background(), database.MarkFeedFetchedParams{
-		ID: next.ID,
-	})
+	err = s.db.MarkFeedFetched(context.Background(), next.ID)
 
 	if err != nil {
 		return err
