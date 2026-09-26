@@ -81,7 +81,7 @@ func scrapeFeeds(s *state) error {
 		})
 
 		if err != nil {
-			if strings.Contains(err.Error(), "ERROR: duplicate key value violates unique constraint") {
+			if strings.Contains(err.Error(), "23505") {
 				continue
 			} else {
 				log.Println("Error occured:", err)
